@@ -37,9 +37,16 @@ if [ -z "$NO_DEFAULT_FEEDS" ]; then
 		-e 's,https://git.openwrt.org/openwrt/,https://github.com/openwrt/,' \
 		-e 's,https://git.openwrt.org/project/,https://github.com/openwrt/,' \
 		feeds.conf.default > feeds.conf
+
+	# # Override default `openwrt/packages` feed with `openwrt-meshtastic/openwrt-packages` feed
+	# sed -i \
+	# 	-e 's,https://github.com/openwrt/packages.git,https://github.com/openwrt-meshtastic/openwrt-packages.git,' \
+	# 	feeds.conf
 fi
 
-echo "src-link $FEEDNAME /feed/" >> feeds.conf
+# Prepend custom feed (allows overriding packages)
+sed -i "1i src-link $FEEDNAME /feed/" feeds.conf
+# echo "src-link $FEEDNAME /feed/" >> feeds.conf
 
 ALL_CUSTOM_FEEDS="$FEEDNAME "
 #shellcheck disable=SC2153
@@ -180,7 +187,7 @@ fi
 
 if [ "$INDEX" = '1' ];then
 	group "make package/index"
-	make package/index
+	make package/index V=s
 	endgroup
 fi
 
